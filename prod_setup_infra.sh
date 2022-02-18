@@ -4,7 +4,7 @@ set -e
 
 # NOTES
 # PRODUCTION
-# Use the "u" option to set the current user as owner of the files 
+# Use the "u" option to set the current user as owner of the files
 # The script should be run with infraportal_setup as the working directory
 # infraportal.sql should be present in infraportal_setup and be the most recent database export
 # Update and copy/rename DEMO_db_info.env to contain the correct information
@@ -72,11 +72,13 @@ fi;
 # HAPROXY
 ####
 
-if [ ! -f "haproxy.cfg" ]; then
+if [ ! -f "configs/haproxy.cfg" ]; then
   echo "haproxy.cfg not found"
   read -p "Press enter to continue without haproxy setup. Otherwise ctrl-c to exit the script now";
 else
-  cp haproxy.cfg /etc/haproxy/haproxy.cfg;
+  sudo install -o root -g root -m 0644 configs/haproxy.cfg /etc/haproxy/haproxy.cfg
+  sudo install -o root -g root -m 0644 configs/ryslog-haproxy.conf /etc/rsyslog.d/haproxy.conf
+  sudo systemctl reload rsyslog
 fi;
 
 ####
