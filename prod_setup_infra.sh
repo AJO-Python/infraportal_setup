@@ -20,7 +20,7 @@ file_owner="33" # Apache UID
 while getopts "u" opt; do
     case $opt in
         u )
-            file_owner=$SUDO_USER;;
+            file_owner=$USER;;
         \? )
             echo "Invalid option: -$OPTARG" >&2;;
     esac
@@ -61,7 +61,7 @@ packages=(
 );
 echo "Starting to setup InfraPortal";
 echo "Updating machine and installing: ${packages[@]}";
-sudo yum update -y && sudo yum install ${packages[@]} -y;
+yum update -y && yum install ${packages[@]} -y;
 if [ ! -d "${infraportal_path}" ]; then
     echo "Cloning infraportal to $infraportal_path"
     echo "Checking out $INFRA_BRANCH"
@@ -76,9 +76,9 @@ if [ ! -f "configs/haproxy.cfg" ]; then
   echo "haproxy.cfg not found"
   read -p "Press enter to continue without haproxy setup. Otherwise ctrl-c to exit the script now";
 else
-  sudo install -o root -g root -m 0644 configs/haproxy.cfg /etc/haproxy/haproxy.cfg
-  sudo install -o root -g root -m 0644 configs/ryslog-haproxy.conf /etc/rsyslog.d/haproxy.conf
-  sudo systemctl reload rsyslog
+  install -o root -g root -m 0644 configs/haproxy.cfg /etc/haproxy/haproxy.cfg
+  install -o root -g root -m 0644 configs/ryslog-haproxy.conf /etc/rsyslog.d/haproxy.conf
+  systemctl reload rsyslog
 fi;
 
 ####
@@ -127,9 +127,9 @@ echo "Copied prod-docker-compose.yaml to $docker_compose_path"
 echo "Setting owner to $file_owner"
 source ./set_permissions.sh $infraportal_path $file_owner
 
-echo "Running as $SUDO_USER. Setting group permissions and aliases now";
-usermod -aG docker $SUDO_USER;  # Adds user to group
-# exec su -l $SUDO_USER;          # Refreshes groups to avoid having to logout and login
+echo "Running as $USER. Setting group permissions and aliases now";
+usermod -aG docker $USER;  # Adds user to group
+# exec su -l $USER;          # Refreshes groups to avoid having to logout and login
 echo "Logout and back in to refresh group memberships"
 
 # Allows drush to be run from the host machine
@@ -142,7 +142,7 @@ function drush() {
 };
 END
 )
-echo "$drush_function" >> /home/$SUDO_USER/.bashrc;
+echo "$drush_function" >> /home/$USER/.bashrc;
 # Start the containers
 systemctl enable docker --now;
 systemctl enable haproxy --now;
